@@ -148,27 +148,34 @@ issue_default_fields:
     Task:
       tio_field: '[{vuln[plugin.id]}] {vuln[plugin.name]}'
       tsc_field: '[{vuln[pluginID]}] {vuln[pluginName]}'
+      csv_field: '[{vuln[Plugin ID]}] {vuln[Name]}'
     Sub-task:
       tio_field: '[{vuln[asset.hostname]}/{vuln[port.port]}/{vuln[port.protocol]}] [{vuln[plugin.id]}] {vuln[plugin.name]}'
       tsc_field: '[{vuln[ip]}/{vuln[port]}/{vuln[protocol]}] [{vuln[pluginID]}] {vuln[pluginName]}'
+      csv_field: '[{vuln[Host]}/{vuln[Port]}/{vuln[Protocol]}] [{vuln[Plugin ID]}] {vuln[Name]}'
   description:
     Task:
       - name: Description
         tio_field: '{vuln[plugin.description]}'
         tsc_field: '{vuln[description]}'
+        csv_field: '{vuln[Description]}'
       - name: Solution
         tio_field: '{vuln[plugin.solution]}'
         tsc_field: '{vuln[solution]}'
+        csv_field: '{vuln[Solution]}'
     Sub-task:
       - name: Description
         tio_field: '{vuln[plugin.description]}'
         tsc_field: '{vuln[description]}'
+        csv_field: '{vuln[Description]}'
       - name: Solution
         tio_field: '{vuln[plugin.solution]}'
         tsc_field: '{vuln[solution]}'
+        csv_field: '{vuln[Solution]}'
       - name: Output
         tio_field: '{vuln[output]}'
         tsc_field: '{vuln[pluginOutput]}'
+        csv_field: '{vuln[Plugin Output]}'
 
 
 # Screen definition section
@@ -243,6 +250,7 @@ fields:
       - Task
     tio_field: plugin.cve
     tsc_field: cve
+    csv_field: CVE
 
   - jira_field: CVSSv2 Base Score
     type: readonlyfield
@@ -252,6 +260,7 @@ fields:
       - Sub-task
     tio_field: plugin.cvss_base_score
     tsc_field: baseScore
+    csv_field: CVSS
 
   - jira_field: CVSSv2 Temporal Score
     type: readonlyfield
@@ -288,6 +297,7 @@ fields:
       - Sub-task
     tio_field: plugin.id
     tsc_field: pluginID
+    csv_field: Plugin ID
 
   - jira_field: Tenable Plugin Family
     type: readonlyfield
@@ -306,6 +316,7 @@ fields:
       - Sub-task
     tio_field: plugin.name
     tsc_field: pluginName
+    csv_field: Name
 
   - jira_field: Vulnerability Severity
     type: readonlyfield
@@ -315,6 +326,7 @@ fields:
       - Sub-task
     tio_field: plugin.risk_factor
     tsc_field: severity.name
+    csv_field: Risk
 
   # Vulnerability Instance fields
   - jira_field: Tenable Asset UUID
@@ -354,6 +366,7 @@ fields:
       - Sub-task
     tio_field: asset.hostname
     tsc_field: dnsName
+    csv_field: Host
 
   - jira_field: Device NetBIOS Name
     type: readonlyfield
@@ -414,6 +427,7 @@ fields:
       - Sub-task
     tio_field: port.port
     tsc_field: port
+    csv_field: Port
 
   - jira_field: Vulnerability Protocol
     type: readonlyfield
@@ -422,6 +436,7 @@ fields:
       - Sub-task
     tio_field: port.protocol
     tsc_field: protocol
+    csv_field: Protocol
 
   - jira_field: Vulnerability Repository ID
     type: readonlyfield
