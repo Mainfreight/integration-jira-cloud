@@ -180,12 +180,14 @@ class Tio2Jira:
                 # from a KeyError, then replace the output with
                 # an empty paragraph.
                 try:
+                    t = item[fid].format(vuln=vuln)
+                    if t == '': raise KeyError()
                     content.append({
                         'type': 'paragraph',
                         'content': [{
                             'type': 'text',
                             'text': trunc(
-                                item[fid].format(vuln=vuln),
+                                t,
                                 tconf.get('limit', 10000),
                                 tconf.get('suffix', '...')
                             )
