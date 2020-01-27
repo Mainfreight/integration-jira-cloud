@@ -115,6 +115,7 @@ issue_types:
       - Device IPv6 Addresses
       - Vulnerability Port
       - Vulnerability Protocol
+      - Affected URL
 
 
 # What transitions should be considered closed?
@@ -152,7 +153,7 @@ issue_default_fields:
     Sub-task:
       tio_field: '[{vuln[asset.hostname]}/{vuln[port.port]}/{vuln[port.protocol]}] [{vuln[plugin.id]}] {vuln[plugin.name]}'
       tsc_field: '[{vuln[ip]}/{vuln[port]}/{vuln[protocol]}] [{vuln[pluginID]}] {vuln[pluginName]}'
-      csv_field: '[{vuln[Host]}/{vuln[Port]}/{vuln[Protocol]}] [{vuln[Plugin ID]}] {vuln[Name]}'
+      csv_field: '[{vuln[Plugin ID]}] {vuln[Name]}: {vuln[URL]}'
   description:
     Task:
       - name: Description
@@ -220,6 +221,8 @@ screen:
       - Device Network ID
       - Vulnerability Repository ID
       - Vulnerability Repository Name
+      - Affected URL
+
 
 # The custom fields are created automatically if they do not exist.  Further the
 # mapping between the jira_field and the tio_field & tsc_field indicate what
@@ -478,4 +481,11 @@ fields:
       - Sub-task
     tio_field: plugin.vpr.score
     tsc_field: vprScore
+
+  - jira_field: Affected URL
+    type: readonlyfield
+    searcher: textsearcher
+    issue_type:
+      - Sub-task
+    csv_field: URL
 '''

@@ -38,7 +38,11 @@ from . import __version__
 import csv
 import os
 import arrow
+import re
 from .scan_downloader import ScanDownloader
+
+# Regex to pull out the vulnerable URL from the Plugin Output
+AFFECTED_URL_RE = re.compile(r'URL\n-----\n(.+)\n')
 
 
 @click.command()
@@ -113,5 +117,16 @@ def cli(configfile, scanname, download_path, setup_only=False):
             sevs = [s.title() for s in config['tenable']['tio_severities']]
             hi_source = [r for r in source if r['Risk'] in sevs]
             for row in hi_source:
-                logging.info('processing row: {} - {}'.format(row['Plugin ID'], row['Name']))
+                logging.info(
+                    'processing row: {} - {}'.format(row['Plugin ID'], row['Name']))
+
+                # Pull out the URL from the plugin output
+                url_match = AFFECTED_URL_RE.search(row['Plugin Output'])
+
+                if url_match:
+                    # Add a `URL` field to the issue (maps to Affected URL)
+                    row['URL'] = url_match.group(1)
+                    logging.info('Affected URL: {}'.format(row['URL']))
+                else:
+                    logging.info('No URL found')
                 ingest._process_open_vuln(row, 'csv_field')
