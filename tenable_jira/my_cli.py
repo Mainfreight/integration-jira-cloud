@@ -129,4 +129,5 @@ def cli(configfile, scanname, download_path, setup_only=False):
                     logging.info('Affected URL: {}'.format(row['URL']))
                 else:
                     logging.info('No URL found')
+                    row['URL'] = ""
                 ingest._process_open_vuln(row, 'csv_field')
