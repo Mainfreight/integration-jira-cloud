@@ -42,7 +42,12 @@ import re
 from .scan_downloader import ScanDownloader
 
 # Regex to pull out the vulnerable URL from the Plugin Output
-AFFECTED_URL_RE = re.compile(r'URL\n-----\n(.+)\n')
+# detected\son\s([\w:\/\.-]+)
+AFFECTED_URL_RE = re.compile(r'''
+    (?:detected\son\s([\w:\/\.-]+))
+    |
+    (?:URL\n-----\n(.+)\n)
+    ''', re.VERBOSE)
 
 
 @click.command()
@@ -125,7 +130,8 @@ def cli(configfile, scanname, download_path, setup_only=False):
 
                 if url_match:
                     # Add a `URL` field to the issue (maps to Affected URL)
-                    row['URL'] = url_match.group(1)
+                    # Picks first non-None in tuple returned from `groups()`
+                    row['URL'] = next((item for item in url_match.groups() if item is not None), "")
                     logging.info('Affected URL: {}'.format(row['URL']))
                 else:
                     logging.info('No URL found')
