@@ -7,3 +7,6 @@ __pycache__
 /generated_config.yaml
 dist
 /issue_debug.md
+build
+scans
+src
