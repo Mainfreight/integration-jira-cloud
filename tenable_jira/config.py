@@ -153,7 +153,7 @@ issue_default_fields:
     Sub-task:
       tio_field: '[{vuln[asset.hostname]}/{vuln[port.port]}/{vuln[port.protocol]}] [{vuln[plugin.id]}] {vuln[plugin.name]}'
       tsc_field: '[{vuln[ip]}/{vuln[port]}/{vuln[protocol]}] [{vuln[pluginID]}] {vuln[pluginName]}'
-      csv_field: '[{vuln[Plugin ID]}] {vuln[Name]}: {vuln[URL]}'
+      csv_field: '{vuln[SubtaskSummary]}'
   description:
     Task:
       - name: Description
