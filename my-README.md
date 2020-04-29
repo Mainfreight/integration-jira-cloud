@@ -5,12 +5,16 @@
 
 ## Upload package
 
-    python3 -m pip install --user --upgrade twine
-    python3 -m pip install --user --upgrade setuptools wheel
-    python3 setup.py sdist bdist_wheel
+```shell
+# Install dependencies
+python3 -m pip install --user --upgrade setuptools wheel twine
 
-    # Upload to test
-    python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+# Build package (remember to clean dist first!)
+python3 setup.py sdist bdist_wheel
 
-    # Upload to PyPI
-    python3 -m twine upload dist/*
+# Upload to test
+python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+# Upload to PyPI
+python3 -m twine upload dist/*
+```
