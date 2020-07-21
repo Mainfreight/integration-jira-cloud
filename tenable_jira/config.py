@@ -488,4 +488,11 @@ fields:
     issue_type:
       - Sub-task
     csv_field: URL
+
+  - jira_field: Application Name
+    type: labels
+    searcher: labelsearcher
+    issue_type:
+      - Sub-task
+    csv_field: ApplicationName
 '''

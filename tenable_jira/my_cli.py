@@ -55,6 +55,8 @@ AFFECTED_URL_RE = re.compile(
     re.VERBOSE,
 )
 
+UNKNOWN_APPLICATION_NAME = "Unknown Application"
+
 troubleshooting = """
 ### Configuration File:
 ```yaml
@@ -77,6 +79,11 @@ troubleshooting = """
 @click.option("--download-path", default="/tmp", show_default=True)
 @click.argument("scanname")
 @click.option(
+    "--application-name",
+    default=UNKNOWN_APPLICATION_NAME,
+    help="Tag tasks with a specific application"
+)
+@click.option(
     "--setup-only",
     is_flag=True,
     help="Performs setup tasks and generates a config file.",
@@ -92,6 +99,7 @@ def cli(
     scanname,
     download_path,
     configfile,
+    application_name,
     setup_only=False,
     troubleshoot=False,
     ingest_only=False,
@@ -155,7 +163,7 @@ def cli(
         # reduce the amount of time that is spent with back-and-forth debugging.
         try:
             download_and_ingest(
-                source, scanname, download_path, config, ingest, ingest_only
+                source, scanname, download_path, config, application_name, ingest, ingest_only
             )
         except:
             logging.exception("Caught the following Exception")
@@ -185,7 +193,7 @@ def cli(
         os.remove("tenable_debug.log")
     elif not setup_only:
         download_and_ingest(
-            source, scanname, download_path, config, ingest, ingest_only
+            source, scanname, download_path, config, application_name, ingest, ingest_only
         )
     elif setup_only:
         # In setup-only mode, the ingest will not run, and instead a config file
@@ -212,7 +220,7 @@ def get_jira_connection(config):
     )
 
 
-def download_and_ingest(source, scanname, download_path, config, ingest, ingest_only):
+def download_and_ingest(source, scanname, download_path, config, application_name, ingest, ingest_only):
     logging.info("Proceeding to ingest")
     downloader = ScanDownloader(source)
 
@@ -234,7 +242,7 @@ def download_and_ingest(source, scanname, download_path, config, ingest, ingest_
             f = downloader.scan_file_path(download_path, scan, hist)
             logging.info("Opening to read: {}".format(f))
             with open(f, "r") as scanfile:
-                ingest_csv_file(scanfile, config, ingest)
+                ingest_csv_file(scanfile, config, ingest, application_name)
     else:
         logging.info("Skipping scan download, assuming we have scan already.")
         logging.info("Reading scans")
@@ -243,7 +251,7 @@ def download_and_ingest(source, scanname, download_path, config, ingest, ingest_
         num_lines = sum(1 for line in open(f))
         logging.info("Number of lines: {}".format(num_lines))
         with open(f, "r") as scanfile:
-            ingest_csv_file(scanfile, config, ingest)
+            ingest_csv_file(scanfile, config, ingest, application_name)
 
 
 def get_tenable_sc_connection(config):
@@ -270,13 +278,13 @@ def get_tenable_io_connection(config):
     )
 
 
-def ingest_csv_file(scanfile, config, ingest):
+def ingest_csv_file(scanfile, config, ingest, application_name):
     my_src = csv.DictReader(scanfile, delimiter=",", quotechar='"')
     sevs = [sev.title() for sev in config["tenable"]["tio_severities"]]
     hi_source = [r for r in my_src if r["Risk"] in sevs]
     logging.info("Found {} filtered items".format(len(hi_source)))
     for row in hi_source:
-        ingest_csv_row(row, ingest)
+        ingest_csv_row(row, ingest, application_name)
 
 
 def redact_sensitive_data(config_from_file):
@@ -320,12 +328,13 @@ def print_redaction_notice():
     )
 
 
-def ingest_csv_row(row, ingest):
+def ingest_csv_row(row, ingest, application_name):
     logging.info("processing row: {} - {}".format(row["Plugin ID"], row["Name"]))
 
     # Pull out the URL from the plugin output
     set_url_if_regex_match(row)
-    set_subtask_summary(row, row["URL"])
+    set_application_name(row, application_name)
+    set_subtask_summary(row, row["URL"], application_name)
     ingest._process_open_vuln(row, "csv_field")
 
 
@@ -342,12 +351,16 @@ def set_url_if_regex_match(row):
         logging.info("No URL found")
         row["URL"] = ""
 
+def set_application_name(row, application_name):
+    row["ApplicationName"] = application_name
 
-def set_subtask_summary(row, url):
+
+def set_subtask_summary(row, url, application_name):
     """
     url parameter enforces sequential processing.
     """
-    rawSummary = "[{}] {}: {}".format(row["Plugin ID"], row["Name"], url)
+    app = url if url != "" else application_name
+    rawSummary = "[{}] {}: {}".format(row["Plugin ID"], row["Name"], app)
     # Summary can only take 255 characters and URLs may blow this out.
     row["SubtaskSummary"] = rawSummary[:253] + (rawSummary[253:] and "..")
     logging.info("Subtask summary: {}".format(row["SubtaskSummary"]))
